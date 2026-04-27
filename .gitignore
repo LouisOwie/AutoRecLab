@@ -10,3 +10,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Ignore build output and local workspace files
+out/
+workspace/
+
