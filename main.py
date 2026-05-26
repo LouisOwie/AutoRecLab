@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from argparse import ArgumentParser
 
@@ -33,12 +34,31 @@ async def main():
     
     require_executable("dot")
 
+    with open("pricing.json") as f:
+        pricing = {m["model"]: m for m in json.load(f)["models"]}
+
     user_req_lines: list[str] = []
-    print('Enter you request, write "!start" to start:')
+    print('Enter your request, write "!start" to start (use /model to change model):')
     while True:
         line = input("> ")
         if line.lower().strip().startswith("!start"):
             break
+
+        if line.lower().strip().startswith("/model"):
+            parts = line.split()
+            if len(parts) == 1 or parts[1] == "list":
+                print()
+                for name, info in pricing.items():
+                    cur = "  <- current" if name == config.agent.code.model else ""
+                    print(f"  {name}  | ${info['input']}/{info['output']} per 1M{cur}")
+                print()
+            elif len(parts) == 2 and parts[1] in pricing:
+                config.agent.code.model = parts[1]
+                print(f"Switched to {parts[1]}.")
+            else:
+                print(f"Unknown model '{parts[1]}'. Try /model")
+            continue
+
         user_req_lines.append(line)
 
     user_request = "\n".join(user_req_lines)
