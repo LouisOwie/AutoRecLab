@@ -34,7 +34,7 @@ async def main():
     
     require_executable("dot")
 
-    with open("pricing.json") as f:
+    with open("pricing.json", "r") as f:
         pricing = {m["model"]: m for m in json.load(f)["models"]}
 
     user_req_lines: list[str] = []
