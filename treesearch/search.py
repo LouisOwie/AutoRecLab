@@ -33,16 +33,17 @@ class TreeSearch:
 
         shutil.copy(CONFIG_PATH, self._out_dir)
 
-        self._minimal_agent = MinimalAgent(
-            self._task_desc,
+        self._prototype_agent = MinimalAgent(
+            self._stage_task_desc("prototype"),
             self._config,
             evaluation_metrics=self._config.agent.evaluation_metrics,
+            stage_name="prototype",
         )
         self._interpreter = Interpreter(self._workspace, self._config.exec.timeout)
         self._type_checker = TypeChecker(self._workspace)
 
     async def _async_init(self):
-        await self._minimal_agent._async_init()
+        await self._prototype_agent._async_init()
 
     @property
     def all_nodes(self):
@@ -97,11 +98,12 @@ class TreeSearch:
             logger.info(
                 f"Generating draft node {i + 1}/{self._config.treesearch.num_draft_nodes}"
             )
-            draft_node = await self._minimal_agent._draft()
-            await self.exec_node(draft_node)
+            draft_node = await self._prototype_agent._draft()
+            await self.exec_node(draft_node, self._prototype_agent)
             self._draft_nodes.append(draft_node)
             statistics_tracker.add_node(draft_node)
 
+        best_node: Node | None = None
         for i in range(self._config.treesearch.max_iterations):
             logger.info(
                 f"Treesearch iteration {i + 1}/{self._config.treesearch.max_iterations}"
@@ -109,31 +111,37 @@ class TreeSearch:
             parent_node = self.select_next_node()
 
             if parent_node.is_buggy:
-                child_node = await self._minimal_agent._debug(parent_node)
+                child_node = await self._prototype_agent._debug(parent_node)
             else:
-                child_node = await self._minimal_agent._improve(parent_node)
+                child_node = await self._prototype_agent._improve(parent_node)
 
-            await self.exec_node(child_node)
+            await self.exec_node(child_node, self._prototype_agent)
             statistics_tracker.add_node(child_node)
 
             if child_node.score.is_satisfactory:
-                logger.info("Found satisfactory node:")
-                self.save()
-                await self.finalize_search(child_node)
-                return
+                logger.info("Found satisfactory prototype node; proceeding to final refinement.")
+                best_node = child_node
+                break
 
         self.save()
 
-        logger.warning("Found no satisfactory node; Using best node instead...")
+        if best_node is None:
+            logger.warning("Found no satisfactory prototype node; Using best node instead...")
 
-        if len(self.good_nodes) == 0:
-            logger.warning("No good nodes found; Using best buggy node...")
-            best_node = self.best_buggy_node
-        else:
-            best_node = self.best_good_node
-        await self.finalize_search(result_node=best_node)
+            if len(self.good_nodes) == 0:
+                logger.warning("No good nodes found; Using best buggy node...")
+                best_node = self.best_buggy_node
+            else:
+                best_node = self.best_good_node
 
-    async def exec_node(self, node: Node) -> Node:
+        if best_node is None:
+            raise RuntimeError("No node available for final refinement.")
+
+        # Step 2: Refinement loop with final requirements
+        refined_node, final_agent = await self._refine_best_node(best_node)
+        await self.finalize_search(result_node=refined_node, agent=final_agent)
+
+    async def exec_node(self, node: Node, agent: MinimalAgent) -> Node:
         # Type checking refinement loop
         current_code = node.code
         
@@ -166,7 +174,7 @@ class TreeSearch:
                 
                 logger.info("Attempting to fix type errors using LLM...")
                 try:
-                    fixed_code = await self._minimal_agent._fix_type_errors(
+                    fixed_code = await agent._fix_type_errors(
                         current_code, type_check_result.format_errors_for_llm()
                     )
                     current_code = fixed_code
@@ -234,14 +242,14 @@ class TreeSearch:
                 except Exception as e:
                     logger.warning(f"Failed to move {item.name}: {e}")
 
-        await self._minimal_agent.score_code(node, exec_result)
+        await agent.score_code(node, exec_result)
         return node
 
-    async def finalize_search(self, result_node: Node):
+    async def finalize_search(self, result_node: Node, agent: MinimalAgent):
         self._interpreter.cleanup_session()
         logger.info(f"Finalizing search with node: {result_node.id}")
         logger.info("Final response:")
-        summary = await self._minimal_agent._summarize(self._user_request, result_node)
+        summary = await agent._summarize(self._user_request, result_node)
         summary_path = self._out_dir / "summary.md"
         summary_path.write_text(summary, encoding="utf-8")
         logger.info(f"Wrote markdown summary to: {summary_path}")
@@ -258,6 +266,28 @@ class TreeSearch:
         task_desc += self._user_request
         return task_desc
 
+    def _stage_task_desc(self, stage: str) -> str:
+        if stage == "prototype":
+            return (
+                "You are in the PROTOTYPE stage."
+                " Your goal is to create a minimal pilot that demonstrates the end-to-end pipeline."
+                " Follow ONLY the prototype requirements: exactly one dataset, exactly one algorithm, minimal metrics, and at least one plot."
+                " Do NOT attempt to satisfy the full user request in this stage."
+                "\n\n"
+                + self._task_desc
+            )
+        if stage == "final":
+            return (
+                "You are in the FINAL stage."
+                " You will be given a working prototype script from a previous node."
+                " Your job is to INCREMENTALLY extend it to satisfy the full user request (e.g., add datasets, algorithms, metrics, plots)."
+                " Preserve the existing code structure and outputs as much as possible."
+                " Do NOT rewrite the script from scratch unless it is strictly required for correctness."
+                "\n\n"
+                + self._task_desc
+            )
+        return self._task_desc
+
     def save(self):
         logger.info("Generating tree visualization...")
         tree_render_dir = mkdir(self._out_dir / "tree_render")
@@ -266,3 +296,54 @@ class TreeSearch:
         with open(self._out_dir / "save.pkl", "wb") as f:
             logger.info(f"SAVING {len(self._draft_nodes)}.....")
             pickle.dump(self._draft_nodes, f)
+
+    async def _refine_best_node(self, best_node: Node) -> tuple[Node, MinimalAgent]:
+        logger.info("Starting refinement loop with final requirements...")
+
+        refinement_base_id = best_node.id
+        if "_iteration" in refinement_base_id:
+            refinement_base_id = refinement_base_id.split("_iteration", 1)[0]
+        if refinement_base_id.endswith("_seed"):
+            refinement_base_id = refinement_base_id[: -len("_seed")]
+
+        final_agent = MinimalAgent(
+            self._stage_task_desc("final"),
+            self._config,
+            evaluation_metrics=self._config.agent.evaluation_metrics,
+            stage_name="final",
+            selected_datasets=self._prototype_agent.selected_datasets,
+        )
+        await final_agent._async_init()
+
+        # Seed node: re-run best prototype code under final requirements
+        seed_node = final_agent._new_node(best_node.plan, best_node.code, parent=best_node)
+        seed_node.id = f"{refinement_base_id}_seed"
+        await self.exec_node(seed_node, final_agent)
+        statistics_tracker.add_node(seed_node)
+
+        current_best = seed_node
+        for i in range(self._config.treesearch.refinement_iterations):
+            logger.info(
+                f"Refinement iteration {i + 1}/{self._config.treesearch.refinement_iterations}"
+            )
+
+            parent_node = current_best
+            if parent_node.is_buggy:
+                child_node = await final_agent._debug(parent_node)
+            else:
+                child_node = await final_agent._improve(parent_node)
+
+            child_node.id = f"{refinement_base_id}_iteration{i + 1}"
+
+            await self.exec_node(child_node, final_agent)
+            statistics_tracker.add_node(child_node)
+
+            if child_node.score.is_satisfactory:
+                logger.info("Found satisfactory node in refinement loop.")
+                return child_node, final_agent
+
+            if child_node.score.score >= current_best.score.score:
+                current_best = child_node
+
+        logger.warning("Refinement loop ended without full satisfaction; using best refined node.")
+        return current_best, final_agent

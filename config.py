@@ -11,6 +11,7 @@ class TreeSearchConfig(BaseSettings):
     debug_prob: float = 0.3
     epsilon: float = 0.3
     max_iterations: int = 10
+    refinement_iterations: int = 2
 
 
 class ExecConfig(BaseSettings):

@@ -5,6 +5,7 @@ num_draft_nodes = 2
 debug_prob = 0.3
 epsilon = 0.4
 max_iterations = 5
+refinement_iterations = 2
 
 [exec]
 timeout = 5400
