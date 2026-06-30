@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from anytree import PreOrderIter
+from rich.progress import Progress
 
 from config import CONFIG_PATH, Config
 
@@ -92,46 +93,69 @@ class TreeSearch:
 
     async def run(self):
         logger.info("Starting tree search...")
-        # Step 1: Generate draft nodes:
-        for i in range(self._config.treesearch.num_draft_nodes):
-            logger.info(
-                f"Generating draft node {i + 1}/{self._config.treesearch.num_draft_nodes}"
-            )
-            draft_node = await self._minimal_agent._draft()
-            await self.exec_node(draft_node)
-            self._draft_nodes.append(draft_node)
-            statistics_tracker.add_node(draft_node)
 
-        for i in range(self._config.treesearch.max_iterations):
-            logger.info(
-                f"Treesearch iteration {i + 1}/{self._config.treesearch.max_iterations}"
+        with Progress() as progress:
+            draft_task = progress.add_task(
+                "Drafting nodes...",
+                total=self._config.treesearch.num_draft_nodes,
             )
-            parent_node = self.select_next_node()
 
-            if parent_node.is_buggy:
-                child_node = await self._minimal_agent._debug(parent_node)
+            for i in range(self._config.treesearch.num_draft_nodes):
+                progress.update(
+                    draft_task,
+                    description=f"Generating draft node {i + 1}/{self._config.treesearch.num_draft_nodes}",
+                )
+                draft_node = await self._minimal_agent._draft()
+                await self.exec_node(draft_node)
+                self._draft_nodes.append(draft_node)
+                statistics_tracker.add_node(draft_node)
+                progress.advance(draft_task)
+
+            iter_task = progress.add_task(
+                "Search iterations...",
+                total=self._config.treesearch.max_iterations,
+            )
+
+            for i in range(self._config.treesearch.max_iterations):
+                parent_node = self.select_next_node()
+
+                if parent_node.is_buggy:
+                    progress.update(
+                        iter_task,
+                        description=f"Iteration {i + 1}/{self._config.treesearch.max_iterations} (debugging)...",
+                    )
+                    child_node = await self._minimal_agent._debug(parent_node)
+                else:
+                    progress.update(
+                        iter_task,
+                        description=f"Iteration {i + 1}/{self._config.treesearch.max_iterations} (improving)...",
+                    )
+                    child_node = await self._minimal_agent._improve(parent_node)
+
+                await self.exec_node(child_node)
+                statistics_tracker.add_node(child_node)
+                progress.advance(iter_task)
+
+                if child_node.score.is_satisfactory:
+                    logger.info("Found satisfactory node:")
+                    self.save()
+                    await self.finalize_search(child_node)
+                    return
+
+            self.save()
+
+            logger.warning(
+                "Found no satisfactory node; Using best node instead..."
+            )
+
+            if len(self.good_nodes) == 0:
+                logger.warning(
+                    "No good nodes found; Using best buggy node..."
+                )
+                best_node = self.best_buggy_node
             else:
-                child_node = await self._minimal_agent._improve(parent_node)
-
-            await self.exec_node(child_node)
-            statistics_tracker.add_node(child_node)
-
-            if child_node.score.is_satisfactory:
-                logger.info("Found satisfactory node:")
-                self.save()
-                await self.finalize_search(child_node)
-                return
-
-        self.save()
-
-        logger.warning("Found no satisfactory node; Using best node instead...")
-
-        if len(self.good_nodes) == 0:
-            logger.warning("No good nodes found; Using best buggy node...")
-            best_node = self.best_buggy_node
-        else:
-            best_node = self.best_good_node
-        await self.finalize_search(result_node=best_node)
+                best_node = self.best_good_node
+            await self.finalize_search(result_node=best_node)
 
     async def exec_node(self, node: Node) -> Node:
         # Type checking refinement loop
