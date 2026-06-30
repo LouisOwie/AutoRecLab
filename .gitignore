@@ -20,4 +20,5 @@ config.toml
 /ragEmbeddings/*
 !/ragEmbeddings/.gitkeep
 
-out/
+
+/out
