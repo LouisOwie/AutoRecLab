@@ -41,6 +41,8 @@ In that case, delete the line "ENTRYPOINT ["/app/docker-entrypoint.sh"]" from th
 AutoRecLab is an autonomous research agent for recommender-systems experimentation.
 It turns a natural-language research task into executable code, evaluates intermediate results, and improves solutions iteratively via tree search.
 
+For a full English documentation set, including setup, architecture, usage examples, and FAQ, see [docs/README.md](docs/README.md).
+
 This `develop` branch is where new features are integrated continuously between paper releases.
 
 ## Why this branch exists
@@ -280,6 +282,10 @@ Project includes:
 ├── tests/                     # Tests
 └── viz.py                     # Tree rendering utility
 ```
+
+## Documentation
+
+A detailed English documentation set is available in [docs/README.md](docs/README.md), covering setup, architecture, usage examples, and FAQ.
 
 ## Known develop-branch caveats
 
