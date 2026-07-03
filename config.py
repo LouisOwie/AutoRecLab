@@ -27,6 +27,8 @@ class ExecConfig(BaseSettings):
 class CodeConfig(BaseSettings):
     model: str = "gpt-5-mini"
     model_temp: float = 1.0
+    request_timeout: int = 120
+    max_retries: int = 3
 
 
 class AgentConfig(BaseSettings):
