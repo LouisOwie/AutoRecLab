@@ -221,6 +221,8 @@ k_fold_validation = 1
 [agent.code]
 model = "gpt-5-mini"
 model_temp = 1.0
+request_timeout = 120
+max_retries = 3
 ```
 
 Note: If `config.toml` is missing, AutoRecLab will using default values shown above and use those defaults at runtime. If an existing `config.toml` omits only some parameters, AutoRecLab will apply default values for the missing parameters while keeping any values you provided. When no `config.toml` is found, AutoRecLab emits an informational console log message indicating that the default configuration is being written and used.
