@@ -1,6 +1,8 @@
 import asyncio
 import os
 from argparse import ArgumentParser
+from datetime import datetime
+from pathlib import Path
 from config import get_config
 from treesearch.search import TreeSearch
 from utils.log import _ROOT_LOGGER, attach_file_handler, set_log_level
@@ -18,14 +20,8 @@ statistics_tracker = get_statistics_tracker()
 async def main():
     set_log_level(os.getenv("ISGSA_LOG", "INFO"))
 
-    config = get_config()
-    out_dir = mkdir(config.out_dir)
     args = get_args()
-
-    #Init workspace
-    if args.init:
-        mkdir(out_dir / "workspace")
-        return
+    config = get_config()
 
 
     # List available datasets
@@ -40,7 +36,18 @@ async def main():
         models_table = get_model_table()
         print(models_table)
         return
+
+
+    if args.timestamp_out_dir:
+        config.out_dir = _with_timestamped_out_dir(config.out_dir)
+
+    out_dir = mkdir(config.out_dir)
     
+    #Init workspace
+    if args.init:
+        mkdir(out_dir / "workspace")
+        return
+
     # Set model in config if provided as argument
     if args.model is not None:
         config.agent.code = config.agent.code.model_copy(update={"model": args.model})
@@ -99,6 +106,16 @@ async def main():
     statistics_tracker.summarize_statistics()
 
 
+def _with_timestamped_out_dir(out_dir: str) -> str:
+    out_path = Path(out_dir)
+    timestamp = datetime.now().astimezone().strftime("%Y-%m-%dT%H-%M-%S")
+
+    if out_path.name == "":
+        return str(out_path / timestamp)
+
+    return str(out_path.with_name(f"{out_path.name}_{timestamp}"))
+
+
 def get_args():
     parser = ArgumentParser("AutoRecLab")
     parser.add_argument("--init", action="store_true")
@@ -108,6 +125,12 @@ def get_args():
     parser.add_argument("--list-datasets", action="store_true")
     parser.add_argument("--list-models", action="store_true")
     parser.add_argument("--model", type=str, default=None)
+    parser.add_argument(
+        "--timestamp-out-dir",
+        action="store_true",
+        default=False,
+        help="Append a timestamp suffix to out_dir for this run.",
+    )
 
     return parser.parse_args()
 
