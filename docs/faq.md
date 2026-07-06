@@ -36,6 +36,12 @@ You can also set the model in [config.toml](../config.toml) under the `[agent.co
 
 `out_dir` defines where AutoRecLab writes results such as summaries, checkpoints, tree state, and rendered visualizations. The default is `./out`.
 
+If you want a unique output folder for a single run without changing `config.toml`, use:
+
+```bash
+uv run main.py --timestamp-out-dir
+```
+
 ## How can I inspect the search tree?
 
 After a run, inspect the saved tree state and rendered visualizations in the output folder:

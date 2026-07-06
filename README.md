@@ -179,6 +179,11 @@ uv run main.py --list-models
 uv run main.py --model "gpt-4o"
 ```
 
+**Append a timestamp to the output directory for this run:**
+```bash
+uv run main.py --timestamp-out-dir
+```
+
 ## Embeddings / documentation index
 
 AutoRecLab uses FAISS vector stores in `ragEmbeddings/` for docs-aware coding.
