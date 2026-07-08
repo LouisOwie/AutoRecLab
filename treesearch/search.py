@@ -1,13 +1,12 @@
+import os
 import pickle
 import random
 import shutil
-import os
 from pathlib import Path
 
 from anytree import PreOrderIter
 
 from config import CONFIG_PATH, Config
-
 from treesearch.interpreter import Interpreter
 from treesearch.minimal_agent import MinimalAgent
 from treesearch.node import Node
@@ -82,14 +81,20 @@ class TreeSearch:
                 return random.choices(nodes, weights=weights, k=1)[0]
             else:
                 logger.info("Selecting best buggy node for debugging...")
-                return max(self.buggy_nodes, key=lambda n: n.score.score * (1 / (len(n.children) + 1)))
+                return max(
+                    self.buggy_nodes,
+                    key=lambda n: n.score.score * (1 / (len(n.children) + 1)),
+                )
 
         if random.random() < self._config.treesearch.epsilon:
             nodes = self.good_nodes
             weights = [1 / (len(n.children) + 1) for n in nodes]
             return random.choices(nodes, weights=weights, k=1)[0]
         else:
-            return max(self.good_nodes, key=lambda n: n.score.score * (1 / (len(n.children) + 1)))
+            return max(
+                self.good_nodes,
+                key=lambda n: n.score.score * (1 / (len(n.children) + 1)),
+            )
 
     async def run(self):
         logger.info("Starting tree search...")
@@ -119,14 +124,18 @@ class TreeSearch:
             statistics_tracker.add_node(child_node)
 
             if child_node.score.is_satisfactory:
-                logger.info("Found satisfactory prototype node; proceeding to final refinement.")
+                logger.info(
+                    "Found satisfactory prototype node; proceeding to final refinement."
+                )
                 best_node = child_node
                 break
 
         self.save()
 
         if best_node is None:
-            logger.warning("Found no satisfactory prototype node; Using best node instead...")
+            logger.warning(
+                "Found no satisfactory prototype node; Using best node instead..."
+            )
 
             if len(self.good_nodes) == 0:
                 logger.warning("No good nodes found; Using best buggy node...")
@@ -144,34 +153,36 @@ class TreeSearch:
     async def exec_node(self, node: Node, agent: MinimalAgent) -> Node:
         # Type checking refinement loop
         current_code = node.code
-        
+
         if self._config.exec.enable_type_checking:
             max_type_check_attempts = self._config.exec.max_type_check_attempts
-            
+
             for attempt in range(1, max_type_check_attempts + 1):
                 node.type_check_attempts = attempt
-                logger.info(f"Type checking code (attempt {attempt}/{max_type_check_attempts})...")
-                
+                logger.info(
+                    f"Type checking code (attempt {attempt}/{max_type_check_attempts})..."
+                )
+
                 type_check_result = self._type_checker.check_code(current_code)
-                
+
                 if not type_check_result.has_errors:
                     logger.info("Type checking passed!")
                     node.type_check_passed = True
                     break
-                
+
                 logger.warning(
                     f"Type checking found {type_check_result.error_count} error(s) "
                     f"(attempt {attempt}/{max_type_check_attempts})"
                 )
                 node.type_check_results.append(type_check_result)
-                
+
                 if attempt == max_type_check_attempts:
                     logger.warning(
                         "Max type checking attempts reached. Proceeding with execution despite type errors."
                     )
                     node.type_check_passed = False
                     break
-                
+
                 logger.info("Attempting to fix type errors using LLM...")
                 try:
                     fixed_code = await agent._fix_type_errors(
@@ -183,13 +194,15 @@ class TreeSearch:
                     node.type_check_passed = False
                     break
         else:
-            logger.info("Type checking is disabled. Enable it in the config to refine code before execution.")
+            logger.info(
+                "Type checking is disabled. Enable it in the config to refine code before execution."
+            )
             node.type_check_passed = None  # type: ignore
-        
+
         # Always sync node.code with current_code so that what we execute
         # matches what the agent sees later
         node.code = current_code
-        
+
         exec_result = self._interpreter.run(current_code)
         logger.debug(exec_result)
 
@@ -201,13 +214,15 @@ class TreeSearch:
         # Move all generated files from the workspace to checkpoint for this node
         workspace_dir = Path(self._workspace)
         working_dir = workspace_dir / "working"
-        
+
         # Collect files from workspace (excluding runfile.py and working dir)
         generated_files = [
-            item for item in workspace_dir.iterdir()
-            if item.name not in ("runfile.py", "working") and not item.name.startswith(".")
+            item
+            for item in workspace_dir.iterdir()
+            if item.name not in ("runfile.py", "working")
+            and not item.name.startswith(".")
         ]
-        
+
         # Also collect files from working subdirectory if it exists
         if working_dir.exists():
             generated_files.extend(list(working_dir.iterdir()))
@@ -231,8 +246,7 @@ class TreeSearch:
 
         else:
             logger.info("Keeping all files.")
-        
-        
+
         if generated_files:
             generated_dir = mkdir(node_dir / "generated")
             for item in generated_files:
@@ -254,7 +268,6 @@ class TreeSearch:
         summary_path.write_text(summary, encoding="utf-8")
         logger.info(f"Wrote markdown summary to: {summary_path}")
         print(summary)
-        
 
     @property
     def _task_desc(self) -> str:
@@ -273,8 +286,7 @@ class TreeSearch:
                 " Your goal is to create a minimal pilot that demonstrates the end-to-end pipeline."
                 " Follow ONLY the prototype requirements: exactly one dataset, exactly one algorithm, minimal metrics, and at least one plot."
                 " Do NOT attempt to satisfy the full user request in this stage."
-                "\n\n"
-                + self._task_desc
+                "\n\n" + self._task_desc
             )
         if stage == "final":
             return (
@@ -283,8 +295,7 @@ class TreeSearch:
                 " Your job is to INCREMENTALLY extend it to satisfy the full user request (e.g., add datasets, algorithms, metrics, plots)."
                 " Preserve the existing code structure and outputs as much as possible."
                 " Do NOT rewrite the script from scratch unless it is strictly required for correctness."
-                "\n\n"
-                + self._task_desc
+                "\n\n" + self._task_desc
             )
         return self._task_desc
 
@@ -316,7 +327,9 @@ class TreeSearch:
         await final_agent._async_init()
 
         # Seed node: re-run best prototype code under final requirements
-        seed_node = final_agent._new_node(best_node.plan, best_node.code, parent=best_node)
+        seed_node = final_agent._new_node(
+            best_node.plan, best_node.code, parent=best_node
+        )
         seed_node.id = f"{refinement_base_id}_seed"
         await self.exec_node(seed_node, final_agent)
         statistics_tracker.add_node(seed_node)
@@ -345,5 +358,7 @@ class TreeSearch:
             if child_node.score.score >= current_best.score.score:
                 current_best = child_node
 
-        logger.warning("Refinement loop ended without full satisfaction; using best refined node.")
+        logger.warning(
+            "Refinement loop ended without full satisfaction; using best refined node."
+        )
         return current_best, final_agent

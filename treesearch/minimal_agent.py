@@ -1,5 +1,4 @@
 import json
-import random
 from pathlib import Path
 from typing import Any, Optional
 
@@ -151,7 +150,9 @@ class MinimalAgent:
             ),
             "Research task": self.task_desc,
             "Code Requirements": (
-                self.code_requirements if hasattr(self, f"code_requirements_{self.stage_name}") else ""
+                self.code_requirements
+                if hasattr(self, f"code_requirements_{self.stage_name}")
+                else ""
             ),
             "Memory": self.memory_summary if self.memory_summary else "",
             "Instructions": {},
@@ -293,7 +294,9 @@ class MinimalAgent:
                 "4. PRESERVE LOGIC: Ensure the research task's scientific logic remains intact while updating the code structure to meet the requirements.",
             ]
 
-        prompt["Instructions"] |= {"Refactoring & Compliance Guidelines": refactor_guidelines}
+        prompt["Instructions"] |= {
+            "Refactoring & Compliance Guidelines": refactor_guidelines
+        }
         prompt["Instructions"] |= self._prompt_impl_guideline
 
         plan, code = await self.plan_and_code_query(prompt)
@@ -476,7 +479,7 @@ class MinimalAgent:
         - Keep only requirements whose absence would make the experiment fail or invalid
         - Remove general best practices, optimizations, or requirements not relevant to this specific task
 
-        2. Appropriate detail level: 
+        2. Appropriate detail level:
         - Remove excessive implementation details (step-by-step procedures, exact formulas, nested logic)
         - Retain critical technical specifications (which framework, which metrics, which methodology)
 
@@ -513,15 +516,15 @@ class MinimalAgent:
                 "Do NOT reference or penalize missing full-scope user-request items (extra datasets, extra algorithms, extra metrics)."
             )
         elif self.stage_name == "final":
-            stage_context = (
-                "STAGE: FINAL. Evaluate against the full user-request requirements and the provided final requirements list."
-            )
+            stage_context = "STAGE: FINAL. Evaluate against the full user-request requirements and the provided final requirements list."
 
         logger.debug("Scoring node %s", node.id)
         logger.debug("Requirements count: %d", len(node.requirements))
 
         # Full output
-        logger.debug(node.term_out if node.term_out else "No experiment output available.")
+        logger.debug(
+            node.term_out if node.term_out else "No experiment output available."
+        )
 
         # First, use the review_func_spec for buggy node identification
         review_prompt = {
@@ -684,12 +687,16 @@ class MinimalAgent:
                 )
 
                 if not confirm_result.confirmed:
-                    missing = {m.strip().lower() for m in confirm_result.missing_requirements}
+                    missing = {
+                        m.strip().lower() for m in confirm_result.missing_requirements
+                    }
                     for req in node.requirements:
                         if req.description.lower() in missing:
                             req.is_fulfilled = False
                             if req.feedback:
-                                req.feedback = req.feedback.strip() + " Coverage check failed."
+                                req.feedback = (
+                                    req.feedback.strip() + " Coverage check failed."
+                                )
                             else:
                                 req.feedback = "Coverage check failed."
             except Exception as e:
@@ -717,7 +724,9 @@ class MinimalAgent:
             )
 
         score = num_fulfilled / len(node.requirements)
-        logger.debug("Final score: %s (%d/%d)", score, num_fulfilled, len(node.requirements))
+        logger.debug(
+            "Final score: %s (%d/%d)", score, num_fulfilled, len(node.requirements)
+        )
 
         if node.is_buggy:
             is_satisfactory = False

@@ -94,6 +94,7 @@ class Query:
         tools = await self._get_all_tools()
 
         from config import get_config
+
         _cfg = get_config()
         model = ChatOpenAI(
             model=self._model,
