@@ -15,9 +15,23 @@ keep_only_relevant_files = false
 
 [agent]
 k_fold_validation = 1
-
-[agent.code]
 model = "gpt-5.4-mini"
 model_temp = 1.0
 request_timeout = 120
 max_retries = 3
+
+[agent.planner]
+model = "gpt-5.4"
+model_temp = 1.0
+
+[agent.coder]
+model = "gpt-5.4-mini"
+model_temp = 1.0
+
+[agent.reviewer]
+model = "gpt-5.4-mini"
+model_temp = 0.3
+
+[agent.summarizer]
+model = "gpt-5.4-nano"
+model_temp = 0.0

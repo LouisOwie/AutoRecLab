@@ -25,17 +25,37 @@ class ExecConfig(BaseSettings):
     keep_only_relevant_files: bool = False
 
 
-class CodeConfig(BaseSettings):
-    model: str = "gpt-5-mini"
+class PlannerConfig(BaseSettings):
+    model: str = "gpt-5.4"
     model_temp: float = 1.0
-    request_timeout: int = 120
-    max_retries: int = 3
+
+
+class CoderConfig(BaseSettings):
+    model: str = "gpt-5.4"
+    model_temp: float = 1.0
+
+
+class ReviewerConfig(BaseSettings):
+    model: str = "gpt-5.4-mini"
+    model_temp: float = 0.3
+
+
+class SummarizerConfig(BaseSettings):
+    model: str = "gpt-5.4-mini"
+    model_temp: float = 0.0
 
 
 class AgentConfig(BaseSettings):
     k_fold_validation: int = 1
     evaluation_metrics: list[str] | None = None
-    code: CodeConfig = CodeConfig()
+    model: str = "gpt-5.4"
+    model_temp: float = 1.0
+    request_timeout: int = 120
+    max_retries: int = 3
+    planner: PlannerConfig = PlannerConfig()
+    coder: CoderConfig = CoderConfig()
+    reviewer: ReviewerConfig = ReviewerConfig()
+    summarizer: SummarizerConfig = SummarizerConfig()
 
 
 class Config(BaseSettings):

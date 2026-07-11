@@ -34,7 +34,7 @@ async def main():
 
     # Set model in config if provided as argument
     if args.model is not None:
-        config.agent.code = config.agent.code.model_copy(update={"model": args.model})
+        config.agent.model = args.model
 
     user_request = resolve_user_request(args)
     if user_request is None or user_request.strip() == "":
@@ -45,7 +45,7 @@ async def main():
 
     log_user_request(out_dir, user_request, args.prompt_no_log)
 
-    await run_autoreclab(user_request, config, out_dir)
+    await run_autoreclab(user_request, config, out_dir, args.multi_model)
 
 
 def handle_management_command(args, out_dir) -> bool:
@@ -94,7 +94,7 @@ def log_user_request(out_dir, user_request: str, prompt_no_log: bool):
         f.write(user_request)
 
 
-async def run_autoreclab(user_request: str, config, out_dir):
+async def run_autoreclab(user_request: str, config, out_dir, multi_model: bool = False):
     attach_file_handler(out_dir)
     cost_tracker.set_out_dir(out_dir)
     statistics_tracker.set_out_dir(out_dir)
@@ -102,7 +102,7 @@ async def run_autoreclab(user_request: str, config, out_dir):
 
     logger.info("Starting AutoRecLab...")
     logger.debug(f"User request:\n{user_request}")
-    ts = TreeSearch(user_request, config=config)
+    ts = TreeSearch(user_request, config=config, multi_model=multi_model)
     await ts._async_init()
     await ts.run()
 
@@ -134,6 +134,12 @@ def get_args():
         action="store_true",
         default=False,
         help="Append a timestamp suffix to out_dir for this run.",
+    )
+    parser.add_argument(
+        "--multi-model",
+        action="store_true",
+        default=False,
+        help="Use per-role LLM models (planner, coder, reviewer, summarizer) instead of the global agent.model.",
     )
 
     return parser.parse_args()

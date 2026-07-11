@@ -36,6 +36,7 @@ class MinimalAgent:
         evaluation_metrics: list[str] | None = None,
         stage_name: str | None = None,
         selected_datasets: list[str] | None = None,
+        multi_model: bool = False,
     ):
         logger.info("Initializing agent...")
         self.task_desc = task_desc
@@ -45,6 +46,7 @@ class MinimalAgent:
         self.stage_name = stage_name
         self.selected_datasets: list[str] | None = selected_datasets
         self._out_dir = mkdir(Path(cfg.out_dir))
+        self._multi_model = multi_model
         logger.info("Agent initialized!")
 
         # Setup MCP connections for documentation search
@@ -68,6 +70,13 @@ class MinimalAgent:
         # (self._out_dir / "code_requirements.json").write_text(
         #     json.dumps(self.code_requirements)
         # )
+
+    def _role_model(self, role: str) -> tuple[str, float]:
+        if self._multi_model:
+            cfg = getattr(self.cfg.agent, role)
+            return cfg.model, cfg.model_temp
+        else:
+            return self.cfg.agent.model, self.cfg.agent.model_temp
 
     @property
     def _prompt_environment(self):
@@ -349,8 +358,9 @@ class MinimalAgent:
 
     async def plan_and_code_query(self, prompt, retries=3) -> tuple[str, str]:
         """Generate a natural language plan + code in the same LLM call and split them apart."""
+        coder_model, coder_temp = self._role_model("coder")
         plan_and_code_result = (
-            await Query(tool_budget=40)
+            await Query(model=coder_model, temperature=coder_temp, tool_budget=40)
             .with_mcp(self._mcp_docs)
             .with_system(
                 f"You are a Senior Recommender Systems Engineer specializing in the OmniRec library. "
@@ -389,8 +399,9 @@ class MinimalAgent:
                 f"Available datasets:\n{get_datasets_table()}"
             )
         }
+        planner_model, planner_temp = self._role_model("planner")
         result = (
-            await Query()
+            await Query(model=planner_model, temperature=planner_temp)
             .with_mcp(self._mcp_docs)
             .with_system(
                 "Search OmniRec documentation for dataset characteristics and usage patterns if needed."
@@ -451,8 +462,9 @@ class MinimalAgent:
 
         Include both technical requirements (correct tool/API usage) and conceptual requirements (methodologically sound experiment design), but keep it as minimal as possible.
         """
+        planner_model, planner_temp = self._role_model("planner")
         requirements_result = (
-            await Query()
+            await Query(model=planner_model, temperature=planner_temp)
             .with_mcp(self._mcp_docs)
             .with_system(
                 "Reference documentation for OmniRec framework and dataset details if needed to ensure requirements are feasible. Prioritize implementation guides and API references."
@@ -492,7 +504,7 @@ class MinimalAgent:
         Refine the list: remove unnecessary requirements, simplify over-detailed ones, split compound ones, add missing critical aspects.
         """
         reflection_result = (
-            await Query()
+            await Query(model=planner_model, temperature=planner_temp)
             .with_mcp(self._mcp_docs)
             .with_system(
                 "Verify requirements against documented best practices. Reference documentation to confirm technical details are correct."
@@ -555,8 +567,9 @@ class MinimalAgent:
         bug_feedback = ""
 
         try:
+            reviewer_model, reviewer_temp = self._role_model("reviewer")
             review_result = (
-                await Query(tool_budget=40)
+                await Query(model=reviewer_model, temperature=reviewer_temp, tool_budget=40)
                 .with_mcp(self._mcp_docs)
                 .with_system(
                     "Search for usage examples in documentation when diagnosing API-related bugs. Look for common error patterns and correct API usage."
@@ -628,7 +641,7 @@ class MinimalAgent:
 
             try:
                 scoring_result = (
-                    await Query(tool_budget=40)
+                    await Query(model=reviewer_model, temperature=reviewer_temp, tool_budget=40)
                     .with_mcp(self._mcp_docs)
                     .with_system(
                         "Verify implementation against documented APIs when correctness is unclear. Reference usage documentation, prioritizing tutorials and user guides over source code."
@@ -671,7 +684,7 @@ class MinimalAgent:
 
             try:
                 confirm_result = (
-                    await Query(tool_budget=40)
+                    await Query(model=reviewer_model, temperature=reviewer_temp, tool_budget=40)
                     .with_mcp(self._mcp_docs)
                     .with_system(
                         "Be conservative: if evidence for any requirement is unclear or absent, mark it as missing."
@@ -783,8 +796,9 @@ class MinimalAgent:
             ],
         }
 
+        summarizer_model, summarizer_temp = self._role_model("summarizer")
         return (
-            await Query(temperature=0.0)
+            await Query(model=summarizer_model, temperature=summarizer_temp)
             .with_mcp(self._mcp_docs)
             .with_system(
                 "If you need to explain results or metrics, search for documentation about evaluation metrics and their interpretation. Focus on user-facing explanations. Output must be clean Markdown suitable for saving as summary.md."

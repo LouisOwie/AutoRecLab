@@ -21,7 +21,7 @@ statistics_tracker = get_statistics_tracker()
 
 
 class TreeSearch:
-    def __init__(self, user_request: str, config: Config) -> None:
+    def __init__(self, user_request: str, config: Config, multi_model: bool = False) -> None:
         self._user_request = user_request
         self._config = config
         self._draft_nodes: list[Node] = []
@@ -37,6 +37,7 @@ class TreeSearch:
             self._config,
             evaluation_metrics=self._config.agent.evaluation_metrics,
             stage_name="prototype",
+            multi_model=multi_model,
         )
         self._interpreter = Interpreter(self._workspace, self._config.exec.timeout)
         self._type_checker = TypeChecker(self._workspace)
@@ -323,6 +324,7 @@ class TreeSearch:
             evaluation_metrics=self._config.agent.evaluation_metrics,
             stage_name="final",
             selected_datasets=self._prototype_agent.selected_datasets,
+            multi_model=self._prototype_agent._multi_model,
         )
         await final_agent._async_init()
 

@@ -44,6 +44,8 @@ class Query:
         model: str | None = None,
         temperature: float | None = None,
         tool_budget: int = 20,
+        request_timeout: int | None = None,
+        max_retries: int | None = None,
     ) -> None:
         self._mcp_connections: list[MCPConnection] = []
         self._tools: list[BaseTool] = []
@@ -52,16 +54,18 @@ class Query:
 
         config = get_config()
         if model is None:
-            self._model = config.agent.code.model
+            self._model = config.agent.model
         else:
             self._model = model
 
         if temperature is None:
-            self._temperature = config.agent.code.model_temp
+            self._temperature = config.agent.model_temp
         else:
             self._temperature = temperature
 
         self._tool_budget = tool_budget
+        self._request_timeout = request_timeout if request_timeout is not None else config.agent.request_timeout
+        self._max_retries = max_retries if max_retries is not None else config.agent.max_retries
 
     def with_tool(self, *tool: BaseTool) -> Self:
         self._tools.extend(tool)
@@ -93,15 +97,12 @@ class Query:
         input = prompt_to_md(input)
         tools = await self._get_all_tools()
 
-        from config import get_config
-
-        _cfg = get_config()
         model = ChatOpenAI(
             model=self._model,
             temperature=self._temperature,
             use_responses_api=True,
-            timeout=_cfg.agent.code.request_timeout,
-            max_retries=_cfg.agent.code.max_retries,
+            timeout=self._request_timeout,
+            max_retries=self._max_retries,
         )
 
         agent = Agent(
