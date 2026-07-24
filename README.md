@@ -1,11 +1,8 @@
-> [!IMPORTANT]
-> **Looking for the latest features?** This branch contains the current stable release aka. **AutoRecLab v1**. 
-> For active development and upcoming changes, please switch to the [`develop`](../../tree/develop) branch.
-
-
 # AutoRecLab v1: Towards an Autonomous Recommender-Systems Researcher
 
-An autonomous AI agent that uses tree search to iteratively develop, debug, and improve code implementations for recommender systems research tasks.
+This repository is a fork of AutoRecLab used by Team 7 as part of the Machine Learning Lab at the University of Siegen. We evaluate AutoRecLab across different task complexities and language-model configurations, focusing on execution reliability, recurring failure modes, runtime, and API costs.
+
+The extended development version used for our model-role allocation experiments is available on the [`feature/per_role`](../../tree/feature/per_role) branch.
 
 ## Overview
 
