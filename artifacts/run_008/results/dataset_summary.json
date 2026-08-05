@@ -1,0 +1,20 @@
+[
+  {
+    "dataset": "ml100k",
+    "users": 938,
+    "items": 1008,
+    "interactions": 54413
+  },
+  {
+    "dataset": "amazon_videogames",
+    "users": 14494,
+    "items": 6950,
+    "interactions": 132209
+  },
+  {
+    "dataset": "lastfm",
+    "users": 1090,
+    "items": 3646,
+    "interactions": 52551
+  }
+]
