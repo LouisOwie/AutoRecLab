@@ -1,0 +1,5 @@
+ALS NDCG@10: best seed 37, worst seed 59, range 0.004633.
+ALS Precision@10: best seed 37, worst seed 23, range 0.007036.
+Pop NDCG@10: best seed 23, worst seed 11, range 0.005214.
+Pop Precision@10: best seed 23, worst seed 11, range 0.008209.
+Five split realizations quantify seed sensitivity but do not support reliable between-algorithm significance claims.

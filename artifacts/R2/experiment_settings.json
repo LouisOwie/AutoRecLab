@@ -1,0 +1,37 @@
+{
+  "stage": "final",
+  "dataset": "MovieLens100K",
+  "preprocessing": "retain ratings >= 4 (ratings > 3), then iterative 5-core filtering",
+  "preprocessing_counts": {
+    "raw_interactions": 100000,
+    "implicit_interactions": 55375,
+    "five_core_interactions": 54413
+  },
+  "split": "independent random user-based two-way holdout",
+  "train_fraction": 0.8,
+  "test_fraction": 0.2,
+  "validation": "none; empty SplitData validation field",
+  "split_seeds": [
+    11,
+    22,
+    33,
+    44,
+    55
+  ],
+  "fixed_training_seed": 2027,
+  "algorithms": {
+    "ALS": {
+      "omnirec_identifier": "LensKit.ImplicitMFScorer",
+      "configuration": "standard OmniRec defaults; fixed {}"
+    },
+    "Pop": {
+      "omnirec_identifier": "LensKit.PopScorer",
+      "configuration": "standard OmniRec defaults; fixed {}"
+    }
+  },
+  "metrics": [
+    "nDCG@10",
+    "Precision@10"
+  ],
+  "evaluation_protocol": "top-10 implicit recommendations exclude split-training interactions and score held-out positive interactions for the same users"
+}

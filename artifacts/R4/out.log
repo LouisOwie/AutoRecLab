@@ -1,0 +1,292 @@
+Dataset: MovieLens100K
+Preprocessing: ratings >= 4 -> implicit; iterative 5-core filtering
+Split: seeded user-based 80/20 train/test holdout; validation is empty
+Algorithms: ['ALS', 'Pop']; metrics: nDCG@10, Precision@10
+Seeds: [11, 22, 33, 44, 55]
+[2026/07/12 09:35:06] INFO     Canonicalized data set    recsys_data_set.py:205
+                               already exists, skipping                        
+                               download and                                    
+                               canonicalization.                               
+                      INFO     Making data set        feedback_conversion.py:21
+                               implicit with                                   
+                               threshold 4.                                    
+                      INFO     Minimum rating: 1      feedback_conversion.py:24
+                      INFO     Maximum rating: 5      feedback_conversion.py:25
+                      INFO     Number of interactions feedback_conversion.py:26
+                               before: 100000                                  
+                      INFO     Number of interactions feedback_conversion.py:44
+                               after: 55375                                    
+                      INFO     Pruning data set to 5-core.   core_pruning.py:19
+                      INFO     Number of interactions        core_pruning.py:20
+                               before: 55375                                   
+                      INFO     Number of interactions after: core_pruning.py:63
+                               54413                                           
+
+=== Dataset counts and 5-core verification ===
+Before: {'interactions': 100000, 'users': 943, 'items': 1682}; after: {'interactions': 54413, 'users': 938, 'items': 1008}; user_min=5; item_min=5
+
+=== Seed 11 ===
+Split counts: {'train': 43158, 'val': 0, 'test': 11255}; evaluated users: 938
+                      INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:35:09] INFO     Runner started with pid:      coordinator.py:297
+                               12356                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:35:19] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:35:39] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:35:41] INFO     MovieLens100K/ImplicitMFScore coordinator.py:373
+                               r done!                                         
+                      INFO     Stopping runner...            coordinator.py:445
+                      INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:35:44] INFO     Runner started with pid:      coordinator.py:297
+                               29340                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:35:54] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:36:14] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:36:15] INFO     MovieLens100K/PopScorer done! coordinator.py:373
+                      INFO     Stopping runner...            coordinator.py:445
+                  MovieLens100K-eff9ee63: Evaluation Results                   
++-----------------------------------------------------------------------------+
+| Algorithm                       | NDCG@10             | Precision@10        |
+|---------------------------------+---------------------+---------------------|
+| LensKit.ImplicitMFScorer-f0dd7… | 0.15727346400163403 | 0.14754797441364606 |
+| LensKit.PopScorer-f4aa5539-11   | 0.13736744564488634 | 0.11855010660980811 |
++-----------------------------------------------------------------------------+
+ALS: nDCG@10=0.157273, Precision@10=0.147548
+Pop: nDCG@10=0.137367, Precision@10=0.118550
+
+=== Seed 22 ===
+Split counts: {'train': 43158, 'val': 0, 'test': 11255}; evaluated users: 938
+[2026/07/12 09:36:16] INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:36:19] INFO     Runner started with pid:      coordinator.py:297
+                               21760                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:36:29] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:36:49] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:36:50] INFO     MovieLens100K/ImplicitMFScore coordinator.py:373
+                               r done!                                         
+                      INFO     Stopping runner...            coordinator.py:445
+[2026/07/12 09:36:51] INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:36:53] INFO     Runner started with pid:      coordinator.py:297
+                               27080                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:37:03] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:37:23] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:37:25] INFO     MovieLens100K/PopScorer done! coordinator.py:373
+                      INFO     Stopping runner...            coordinator.py:445
+                  MovieLens100K-eff9ee63: Evaluation Results                   
++-----------------------------------------------------------------------------+
+| Algorithm                       | NDCG@10             | Precision@10        |
+|---------------------------------+---------------------+---------------------|
+| LensKit.ImplicitMFScorer-f0dd7… | 0.15727346400163403 | 0.14754797441364606 |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.1614127023970331  | 0.1488272921108742  |
+| LensKit.PopScorer-f4aa5539-11   | 0.13736744564488634 | 0.11855010660980811 |
+| LensKit.PopScorer-f4aa5539-22   | 0.13658582813455142 | 0.1197228144989339  |
++-----------------------------------------------------------------------------+
+ALS: nDCG@10=0.161413, Precision@10=0.148827
+Pop: nDCG@10=0.136586, Precision@10=0.119723
+
+=== Seed 33 ===
+Split counts: {'train': 43158, 'val': 0, 'test': 11255}; evaluated users: 938
+[2026/07/12 09:37:26] INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:37:28] INFO     Runner started with pid:      coordinator.py:297
+                               16716                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:37:38] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:37:58] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:38:00] INFO     MovieLens100K/ImplicitMFScore coordinator.py:373
+                               r done!                                         
+                      INFO     Stopping runner...            coordinator.py:445
+                      INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:38:03] INFO     Runner started with pid:      coordinator.py:297
+                               14024                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:38:13] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:38:33] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:38:35] INFO     MovieLens100K/PopScorer done! coordinator.py:373
+                      INFO     Stopping runner...            coordinator.py:445
+                  MovieLens100K-eff9ee63: Evaluation Results                   
++-----------------------------------------------------------------------------+
+| Algorithm                       | NDCG@10             | Precision@10        |
+|---------------------------------+---------------------+---------------------|
+| LensKit.ImplicitMFScorer-f0dd7… | 0.15727346400163403 | 0.14754797441364606 |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.1614127023970331  | 0.1488272921108742  |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.1572467802334412  | 0.146908315565032   |
+| LensKit.PopScorer-f4aa5539-11   | 0.13736744564488634 | 0.11855010660980811 |
+| LensKit.PopScorer-f4aa5539-22   | 0.13658582813455142 | 0.1197228144989339  |
+| LensKit.PopScorer-f4aa5539-33   | 0.13513639062275906 | 0.11940298507462686 |
++-----------------------------------------------------------------------------+
+ALS: nDCG@10=0.157247, Precision@10=0.146908
+Pop: nDCG@10=0.135136, Precision@10=0.119403
+
+=== Seed 44 ===
+Split counts: {'train': 43158, 'val': 0, 'test': 11255}; evaluated users: 938
+                      INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:38:38] INFO     Runner started with pid:      coordinator.py:297
+                               22340                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:38:48] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:39:08] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:39:10] INFO     MovieLens100K/ImplicitMFScore coordinator.py:373
+                               r done!                                         
+                      INFO     Stopping runner...            coordinator.py:445
+                      INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:39:13] INFO     Runner started with pid:      coordinator.py:297
+                               31640                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:39:23] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:39:43] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:39:44] INFO     MovieLens100K/PopScorer done! coordinator.py:373
+                      INFO     Stopping runner...            coordinator.py:445
+                  MovieLens100K-eff9ee63: Evaluation Results                   
++-----------------------------------------------------------------------------+
+| Algorithm                       | NDCG@10             | Precision@10        |
+|---------------------------------+---------------------+---------------------|
+| LensKit.ImplicitMFScorer-f0dd7… | 0.15727346400163403 | 0.14754797441364606 |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.1614127023970331  | 0.1488272921108742  |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.1572467802334412  | 0.146908315565032   |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.1638246311960825  | 0.15287846481876333 |
+| LensKit.PopScorer-f4aa5539-11   | 0.13736744564488634 | 0.11855010660980811 |
+| LensKit.PopScorer-f4aa5539-22   | 0.13658582813455142 | 0.1197228144989339  |
+| LensKit.PopScorer-f4aa5539-33   | 0.13513639062275906 | 0.11940298507462686 |
+| LensKit.PopScorer-f4aa5539-44   | 0.1366008093147987  | 0.11950959488272922 |
++-----------------------------------------------------------------------------+
+ALS: nDCG@10=0.163825, Precision@10=0.152878
+Pop: nDCG@10=0.136601, Precision@10=0.119510
+
+=== Seed 55 ===
+Split counts: {'train': 43158, 'val': 0, 'test': 11255}; evaluated users: 938
+[2026/07/12 09:39:45] INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:39:48] INFO     Runner started with pid:      coordinator.py:297
+                               15156                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:39:58] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:40:18] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/ImplicitMFScore                   
+                               r                                               
+[2026/07/12 09:40:19] INFO     MovieLens100K/ImplicitMFScore coordinator.py:373
+                               r done!                                         
+                      INFO     Stopping runner...            coordinator.py:445
+[2026/07/12 09:40:20] INFO     Reusing existing env 'LensKit_env' at envs.py:48
+                               C:\Users\lukas\.omnirec\data\envs\Len           
+                               sKit_env                                        
+                      INFO     Starting runner...            coordinator.py:272
+[2026/07/12 09:40:22] INFO     Runner started with pid:      coordinator.py:297
+                               29240                                           
+                      INFO     Connecting to runner...       coordinator.py:135
+                      INFO     Running phase 'Fit' for       coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:40:32] INFO     Running phase 'Predict' for   coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:40:52] INFO     Running phase 'Evaluate' for  coordinator.py:402
+                               MovieLens100K/PopScorer                         
+[2026/07/12 09:40:54] INFO     MovieLens100K/PopScorer done! coordinator.py:373
+                      INFO     Stopping runner...            coordinator.py:445
+                  MovieLens100K-eff9ee63: Evaluation Results                   
++-----------------------------------------------------------------------------+
+| Algorithm                       | NDCG@10             | Precision@10        |
+|---------------------------------+---------------------+---------------------|
+| LensKit.ImplicitMFScorer-f0dd7… | 0.15727346400163403 | 0.14754797441364606 |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.1614127023970331  | 0.1488272921108742  |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.1572467802334412  | 0.146908315565032   |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.1638246311960825  | 0.15287846481876333 |
+| LensKit.ImplicitMFScorer-f0dd7… | 0.15852406098755092 | 0.1457356076759062  |
+| LensKit.PopScorer-f4aa5539-11   | 0.13736744564488634 | 0.11855010660980811 |
+| LensKit.PopScorer-f4aa5539-22   | 0.13658582813455142 | 0.1197228144989339  |
+| LensKit.PopScorer-f4aa5539-33   | 0.13513639062275906 | 0.11940298507462686 |
+| LensKit.PopScorer-f4aa5539-44   | 0.1366008093147987  | 0.11950959488272922 |
+| LensKit.PopScorer-f4aa5539-55   | 0.13784118843134713 | 0.12046908315565032 |
++-----------------------------------------------------------------------------+
+ALS: nDCG@10=0.158524, Precision@10=0.145736
+Pop: nDCG@10=0.137841, Precision@10=0.120469
+
+=== Five-seed summaries ===
+algorithm       metric     mean      std   median      min      max  ci95_low  ci95_high
+      ALS      NDCG@10 0.159656 0.002882 0.158524 0.157247 0.163825  0.157130   0.162183
+      ALS Precision@10 0.148380 0.002752 0.147548 0.145736 0.152878  0.145968   0.150791
+      Pop      NDCG@10 0.136706 0.001027 0.136601 0.135136 0.137841  0.135807   0.137606
+      Pop Precision@10 0.119531 0.000688 0.119510 0.118550 0.120469  0.118927   0.120134
+
+=== Exploratory paired ALS-minus-Pop differences ===
+      metric    comparison  mean_difference      std   median      min      max  ci95_low  ci95_high                                                  interpretation
+     NDCG@10 ALS-minus-Pop         0.022950 0.003037 0.022110 0.019906 0.027224  0.020288   0.025612 Exploratory paired five-seed comparison; no significance claim.
+Precision@10 ALS-minus-Pop         0.028849 0.002965 0.028998 0.025267 0.033369  0.026250   0.031447 Exploratory paired five-seed comparison; no significance claim.
+
+Saved raw results to C:\Users\lukas\AutoRecLab_Team7\out_2026-07-12T08-58-59\workspace\working\movielens100k_implicit_seed_raw_results.csv
+Saved summaries to C:\Users\lukas\AutoRecLab_Team7\out_2026-07-12T08-58-59\workspace\working\movielens100k_implicit_seed_summary.csv and paired differences to C:\Users\lukas\AutoRecLab_Team7\out_2026-07-12T08-58-59\workspace\working\movielens100k_implicit_paired_differences.csv
+Execution time: 5 minutes (time limit is an hour).

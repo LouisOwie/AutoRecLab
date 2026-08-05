@@ -1,0 +1,31 @@
+{
+  "nDCG@10": {
+    "als_minus_pop_by_seed": {
+      "11": 0.023164077219407164,
+      "22": 0.018061769221094065,
+      "33": 0.024030284181943945,
+      "44": 0.02152074352855285,
+      "55": 0.023299855598386404
+    },
+    "mean_difference": 0.022015345949876884,
+    "sample_std_difference": 0.0023929545101876093,
+    "minimum_difference": 0.018061769221094065,
+    "maximum_difference": 0.024030284181943945,
+    "paired_t_like_statistic": 20.571979067098898
+  },
+  "Precision@10": {
+    "als_minus_pop_by_seed": {
+      "11": 0.030170575692963747,
+      "22": 0.02132196162046908,
+      "33": 0.03027718550106609,
+      "44": 0.027078891257995757,
+      "55": 0.02985074626865672
+    },
+    "mean_difference": 0.027739872068230274,
+    "sample_std_difference": 0.0038219281653619577,
+    "minimum_difference": 0.02132196162046908,
+    "maximum_difference": 0.03027718550106609,
+    "paired_t_like_statistic": 16.229567105387016
+  },
+  "interpretation": "Descriptive paired comparison across five common random splits; inference is limited by the small number of paired splits."
+}

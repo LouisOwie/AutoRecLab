@@ -1,0 +1,20 @@
+ID: 2eaf3406957e4f5c807fff3c7a497eb7_iteration1
+Position: 11
+Score: 0.8461538461538461
+Is Buggy: False
+Is Satisfactory: False
+Execution Time: 349.8367922306061
+Lines of Code: 340
+Empty Lines: 41
+Comment Lines: 6
+Total Characters: 15827
+Libraries Imported: matplotlib, omnirec, pandas, pathlib, os, typing, numpy
+Count of Libraries Imported: 7
+Functions: 6
+Classes: 1
+Average Arguments per Function: 2.0
+Variable Assignments: 65
+Loops: 11
+Conditions: 10
+Insertions: 165
+Deletions: 86

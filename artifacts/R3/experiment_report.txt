@@ -1,0 +1,19 @@
+MovieLens100K implicit split-seed sensitivity experiment
+==========================================================
+Preprocessing: ratings > 3 were converted to implicit interactions, then iterative 5-core filtering retained 938 users, 1008 items, and 54413 interactions.
+Splits: user-based disjoint 80/20 holdouts with seeds [11, 23, 37, 53, 71]; each user retains at least one train and one test interaction. The same SplitData object was evaluated by ALS and Pop for each seed.
+Algorithms: OmniRec LensKit.ImplicitMFScorer with fixed configuration {'embedding_size': 64, 'epochs': 10, 'regularization': 0.1, 'weight': 40, 'use_ratings': False, 'user_embeddings': True}; OmniRec LensKit.PopScorer with its default configuration. OmniRec random state was reset to training seed 2026 before every two-algorithm run.
+Evaluation: OmniRec implicit top-N recommendation/evaluation path with NDCG@10 and Precision@10; training uses only each split's train frame.
+
+Descriptive seed-sensitivity summary (five splits; no statistical-significance inference):
+- ALS NDCG@10: mean=0.162859, sample SD=0.004358, range=0.011136 (0.155384 to 0.166520), CV=2.68%.
+- ALS Precision@10: mean=0.148977, sample SD=0.002389, range=0.005650 (0.145096 to 0.150746), CV=1.60%.
+- Pop NDCG@10: mean=0.137836, sample SD=0.004264, range=0.011216 (0.131296 to 0.142512), CV=3.09%.
+- Pop Precision@10: mean=0.121130, sample SD=0.003272, range=0.008316 (0.116205 to 0.124520), CV=2.70%.
+
+Outputs:
+- algorithm_split_seed_results.csv: complete algorithm-by-seed metric table.
+- algorithm_split_seed_summary.csv: algorithm/metric descriptive statistics.
+- split_audit.csv: split integrity and size audit.
+- als_ndcg_at_10_by_split_seed.png: retained prototype ALS NDCG plot.
+- ndcg_at_10_by_algorithm_and_split_seed.png and precision_at_10_by_algorithm_and_split_seed.png: labeled ALS-vs-Pop comparison plots.

@@ -1,0 +1,35 @@
+{
+  "dataset": "MovieLens100K",
+  "algorithms": {
+    "ALS": "LensKit.ImplicitMFScorer",
+    "Pop": "LensKit.PopScorer"
+  },
+  "preprocessing": [
+    "RatingFilter(lower=4), equivalent to rating > 3",
+    "MakeImplicit(4)",
+    "CorePruning(5)"
+  ],
+  "split": {
+    "type": "user-wise random holdout",
+    "test_size": 0.2,
+    "validation_size": 0.0,
+    "note": "UserHoldout creates its required tiny validation partition; it is merged into train, leaving no validation interactions."
+  },
+  "seeds": [
+    11,
+    23,
+    37,
+    41,
+    59
+  ],
+  "metrics": [
+    "NDCG@10",
+    "Precision@10"
+  ],
+  "dataset_counts_after_preprocessing": {
+    "users": 938,
+    "items": 1008,
+    "interactions": 54413
+  },
+  "execution": "OmniRec run_omnirec"
+}
